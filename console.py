@@ -113,15 +113,42 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def do_create(self, args):
-        """ Create an object of any class"""
-        if not args:
+    def do_create(self, arg):
+        """
+        Create an object of any class with given parameters
+        """
+        if not arg:
             print("** class name missing **")
             return
-        elif args not in HBNBCommand.classes:
+
+        args = arg.split()
+        class_name = args[0]
+
+        if class_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        new_instance = HBNBCommand.classes[args]()
+
+        kwargs = {}
+        for param in args[1:]:
+            if '=' not in param:
+                continue
+
+            key, value = param.split('=')
+            key = key.strip()
+            value = value.strip().strip('"')
+
+            if value.startswith('"') and value.endswith('"'):
+                value = value[1:-1].replace('_', ' ').replace('\\"', '"')
+            elif '.' in value and all(char.isdigit() for char in value.replace('.', '', 1)):
+                value = float(value)
+            elif value.isdigit():
+                value = int(value)
+            else:
+                continue
+
+            kwargs[key] = value
+
+        new_instance = HBNBCommand.classes[class_name](**kwargs)
         storage.save()
         print(new_instance.id)
         storage.save()
@@ -129,7 +156,7 @@ class HBNBCommand(cmd.Cmd):
     def help_create(self):
         """ Help information for the create method """
         print("Creates a class of any type")
-        print("[Usage]: create <className>\n")
+        print("Usage: create <Class name> <param 1> <param 2> <param 3>...")
 
     def do_show(self, args):
         """ Method to show an individual object """
