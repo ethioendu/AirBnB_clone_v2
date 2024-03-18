@@ -139,10 +139,6 @@ class HBNBCommand(cmd.Cmd):
 
             if value.startswith('"') and value.endswith('"'):
                 value = value[1:-1].replace('_', ' ').replace('\\"', '"')
-            elif '.' in value and all(char.isdigit() for char in value.replace('.', '', 1)):
-                value = float(value)
-            elif value.isdigit():
-                value = int(value)
             else:
                 continue
 
