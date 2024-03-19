@@ -26,16 +26,27 @@ class DBStorage:
             Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
-        """Query on the current database session"""
-        objects = {}
-        classes = [cls] if cls else [User, State, City, Amenity, Place, Review]
+        """Returns a dictionary of models currently in storage"""
+        from models.user import User
+        from models.state import State
+        from models.city import City
+        from models.amenity import Amenity
+        from models.place import Place
+        from models.review import Review
 
-        for cls in classes:
-            query_result = self.__session.query(cls).all()
-            for obj in query_result:
-                key = f"{obj.__class__.__name__}.{obj.id}"
-                objects[key] = obj
-
+        objects = dict()
+        all_classes = (User, State, City, Amenity, Place, Review)
+        if cls is None:
+            for class_type in all_classes:
+                query = self.__session.query(class_type)
+                for obj in query.all():
+                    obj_key = '{}.{}'.format(obj.__class__.__name__, obj.id)
+                    objects[obj_key] = obj
+        else:
+            query = self.__session.query(cls)
+            for obj in query.all():
+                obj_key = '{}.{}'.format(obj.__class__.__name__, obj.id)
+                objects[obj_key] = obj
         return objects
 
     def new(self, obj):

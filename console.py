@@ -2,6 +2,8 @@
 """ Console Module """
 import cmd
 import sys
+import uuid
+from datetime import datetime
 from models.base_model import BaseModel
 from models.__init__ import storage
 from models.user import User
@@ -10,7 +12,7 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
-
+from os import getenv
 
 class HBNBCommand(cmd.Cmd):
     """ Contains the functionality for the HBNB console"""
@@ -145,10 +147,23 @@ class HBNBCommand(cmd.Cmd):
 
             kwargs[key] = value
 
-        new_instance = HBNBCommand.classes[class_name](**kwargs)
-        storage.save()
+        if getenv('HBNB_TYPE_STORAGE') == 'db':
+            if not hasattr(kwargs, 'id'):
+                kwargs['id'] = str(uuid.uuid4())
+            if not hasattr(kwargs, 'created_at'):
+                kwargs['created_at'] = str(datetime.now())
+            if not hasattr(kwargs, 'updated_at'):
+                kwargs['updated_at'] = str(datetime.now())
+            new_instance = HBNBCommand.classes[class_name](**kwargs)
+            new_instance.save()
+            print(new_instance.id)
+        else:
+            new_instance = HBNBCommand.classes[class_name]()
+            for key, value in kwargs.items():
+                setattr(new_instance, key, value)
+        new_instance.save()
         print(new_instance.id)
-        storage.save()
+
 
     def help_create(self):
         """ Help information for the create method """
@@ -230,11 +245,32 @@ class HBNBCommand(cmd.Cmd):
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage._FileStorage__objects.items():
+
+            from models.engine.file_storage import FileStorage
+            from models.engine.db_storage import DBStorage
+
+            if isinstance(storage, FileStorage):
+                objects = storage._FileStorage__objects
+            elif isinstance(storage, DBStorage):
+                objects = storage.all()
+            else:
+                objects = {}
+
+            for k, v in objects.items():
                 if k.split('.')[0] == args:
                     print_list.append(str(v))
         else:
-            for k, v in storage._FileStorage__objects.items():
+            from models.engine.file_storage import FileStorage
+            from models.engine.db_storage import DBStorage
+
+            if isinstance(storage, FileStorage):
+                objects = storage._FileStorage__objects
+            elif isinstance(storage, DBStorage):
+                objects = storage.all()
+            else:
+                objects = {}
+
+            for k, v in objects.items():
                 print_list.append(str(v))
 
         print(print_list)
