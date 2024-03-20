@@ -11,7 +11,7 @@ class State(BaseModel):
     __tablename__ = 'states'
     name = Column(String(128), nullable=False)
     from models import storage_type
-    if storage_type == 'db':
+    if  storage_type == 'db':
         cities = relationship("City", cascade="all, delete", backref="state")
     else:
         @property
