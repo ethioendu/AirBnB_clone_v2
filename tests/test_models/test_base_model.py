@@ -28,22 +28,22 @@ class TestBasemodel(unittest.TestCase):
         """Performs some operations after the tests are run"""
         try:
             os.remove('file.json')
-        except Exception:
+        except :
             pass
 
-    def test_init(self):
+    def test_default(self):
         """Tests the initialization of the model class.
         """
-        self.assertIsInstance(self.value(), BaseModel)
-        if self.value is not BaseModel:
-            self.assertIsInstance(self.value(), Base)
-        else:
-            self.assertNotIsInstance(self.value(), Base)
+        i = self.value()
+        self.assertEqual(type(i), self.value)
 
     def test_default(self):
         """Tests the type of value stored."""
         i = self.value()
-        self.assertEqual(type(i), self.value)
+        copy = i.to_dict()
+        new = BaseModel(**copy)
+        self.assertFalse(new is i)
+        
 
     def test_kwargs(self):
         """Tests kwargs with an int."""
