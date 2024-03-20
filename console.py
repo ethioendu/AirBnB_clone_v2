@@ -2,17 +2,15 @@
 """ Console Module """
 import cmd
 import sys
-import uuid
-from datetime import datetime
 from models.base_model import BaseModel
-from models.__init__ import storage
+from models.__init__ import storage_type, storage
 from models.user import User
 from models.place import Place
 from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
-from os import getenv
+
 
 class HBNBCommand(cmd.Cmd):
     """ Contains the functionality for the HBNB console"""
@@ -117,7 +115,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, arg):
         """
-        Create an object of any class with given parameters
+           Create an object of any class with given parameters
         """
         if not arg:
             print("** class name missing **")
@@ -141,29 +139,25 @@ class HBNBCommand(cmd.Cmd):
 
             if value.startswith('"') and value.endswith('"'):
                 value = value[1:-1].replace('_', ' ').replace('\\"', '"')
-
+            elif '.' in value and all(char.isdigit() for char in value.replace('.', '', 1)):
+                value = float(value)
+            elif value.isdigit():
+                value = int(value)
             else:
                 continue
 
             kwargs[key] = value
 
-        if getenv('HBNB_TYPE_STORAGE') == 'db':
-            if not hasattr(kwargs, 'id'):
-                kwargs['id'] = str(uuid.uuid4())
-            if not hasattr(kwargs, 'created_at'):
-                kwargs['created_at'] = str(datetime.now())
-            if not hasattr(kwargs, 'updated_at'):
-                kwargs['updated_at'] = str(datetime.now())
+        if storage_type == 'db':
             new_instance = HBNBCommand.classes[class_name](**kwargs)
             new_instance.save()
             print(new_instance.id)
         else:
             new_instance = HBNBCommand.classes[class_name]()
             for key, value in kwargs.items():
-                setattr(new_instance, key, value)
-        new_instance.save()
-        print(new_instance.id)
-
+                    setattr(new_instance, key, value)
+            new_instance.save()
+            print(new_instance.id)
 
     def help_create(self):
         """ Help information for the create method """
