@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 import urllib.parse
 from models.base_model import BaseModel, Base
 
+
 class DBStorage:
     """This class manages storage of hbnb models in a SQL database"""
     __engine = None

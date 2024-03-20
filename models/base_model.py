@@ -5,7 +5,6 @@ from datetime import datetime
 from sqlalchemy import Column, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 
-
 Base = declarative_base()
 
 
@@ -17,7 +16,7 @@ class BaseModel:
 
     def __init__(self, *args, **kwargs):
         """Instatntiates a new model"""
-        current_time = datetime.utcnow()
+        current_time = datetime.now()
 
         if not kwargs:
             self.id = str(uuid.uuid4())
@@ -26,8 +25,17 @@ class BaseModel:
         else:
             for key, value in kwargs.items():
                 if key != '__class__':
-                    setattr(self, key, value)
-
+                    if key in ('created_at', 'updated_at'):
+                        setattr(self, key, datetime.fromisoformat(value))
+                    else:
+                        setattr(self, key, value)
+            # if os.getenv('HBNB_TYPE_STORAGE') in ('db'):
+            if not hasattr(kwargs, 'id'):
+                setattr(self, 'id', str(uuid.uuid4()))
+            if not hasattr(kwargs, 'created_at'):
+                setattr(self, 'created_at', datetime.now())
+            if not hasattr(kwargs, 'updated_at'):
+                setattr(self, 'updated_at', datetime.now())
 
     def __str__(self):
         """Returns a string representation of the instance"""
@@ -42,13 +50,15 @@ class BaseModel:
 
     def to_dict(self):
         """Convert instance into dict format"""
-        dictionary = dict(self.__dict__)
-        dictionary.pop('_sa_instance_state', None)
+        dictionary = {}
+        for key, value in self.__dict__.items():
+            if key != '_sa_instance_state':
+                if isinstance(value, datetime):
+                    dictionary[key] = value.isoformat()
+                else:
+                    dictionary[key] = value
         dictionary['__class__'] = self.__class__.__name__
-        dictionary['created_at'] = self.created_at.isoformat()
-        dictionary['updated_at'] = self.updated_at.isoformat()
         return dictionary
-
 
     def delete(self):
         """Deletes the current instance"""
