@@ -14,10 +14,7 @@ class TestState(TestBasemodel):
         self.name = "State"
         self.value = State
 
-    def test_name3(self):
-        """Tests the type of name."""
+     def test_name3(self):
+        """ """
         new = self.value()
-        self.assertEqual(
-            type(new.name),
-            str if os.getenv('HBNB_TYPE_STORAGE') != 'db' else type(None)
-        )
+        self.assertEqual(type(new.name), str)
