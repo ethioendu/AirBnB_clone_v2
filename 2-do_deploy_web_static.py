@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 """script that deploys to webserver
 """
-from fabric.api import env, put, run, sudo
-from os.path import exists
+from fabric.api import env, put, run
+from os.path import exists, join
+from datetime import datetime
 import os
 
 
@@ -19,16 +20,17 @@ def do_pack():
         if the archive has been correctly generated return the archive path.
         Otherwise, it should return None
     """
-    local('sudo mkdir -p versions')
+    local('mkdir -p versions')
     current_time = datetime.now()
     time_str = current_time.strftime('%Y%m%d%H%M%S')
     full_name = f'web_static_{time_str}.tgz'
-    result = local(f'sudo tar -cvzf versions/{full_name} web_static')
-    file_size = os.path.getsize('versions/' + full_name)
-    print(f"web_static packed: versions/{full_name} -> {file_size}Bytes")
-    if result.failed:
-        return None
-    return f'versions/{full_name}'
+    result = local(f'tar -cvzf versions/{full_name} web_static')
+    file_path = join('versions', full_name)
+    file_size = os.path.getsize(file_path)
+    print(f"web_static packed: {file_path} -> {file_size} Bytes")
+    if result.succeeded:
+        return file_path
+    return None
 
 
 def do_deploy(archive_path):
@@ -51,7 +53,8 @@ def do_deploy(archive_path):
         put(archive_path, '/tmp/')
 
         archivename = os.path.basename(archive_path)
-        archivefolder = '/data/web_static/releases/' + archivename.split('.')[0]
+        archivefolder = '/data/web_static/releases/{}'.format(
+            archivename.split('.')[0])
         run('mkdir -p {}'.format(archivefolder))
         run('tar -xzf /tmp/{} -C {}'.format(archivename, archivefolder))
         run('rm /tmp/{}'.format(archivename))
