@@ -9,9 +9,6 @@ import os
 
 env.hosts = ['54.237.13.137', '54.87.235.212']
 
-env.key_filename = '/home/wasealex/.ssh/ssh_key'
-env.user = 'ubuntu'
-
 
 def do_pack():
     """ directory versions is created and web_static archive is saved
@@ -69,3 +66,11 @@ def do_deploy(archive_path):
         return True
     except Exception as e:
         return False
+
+def deploy():
+    archive_path = do_pack()
+
+    if not archive_path:
+        return False
+
+    return do_deploy(archive_path)
