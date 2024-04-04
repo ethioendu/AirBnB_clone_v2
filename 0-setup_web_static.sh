@@ -1,4 +1,4 @@
-#!usr/bin/env bash
+#!/usr/bin/env bash
 #script that sets up your web servers for the deployment of web_static.
 #It Installs Nginx if it not already installed
 #Create the folder /data/ if it doesn’t already exist
