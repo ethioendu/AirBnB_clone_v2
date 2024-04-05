@@ -12,16 +12,16 @@ sudo service nginx start
 
 # Install Nginx if not already installed
 if ! command -v nginx &> /dev/null; then
-    apt-get update
-    apt-get install -y nginx
+    sudo apt-get update
+    sudo apt-get install -y nginx
 fi
 
 # Create necessary directories if they don't exist
-mkdir -p /data/web_static/releases/test/
-mkdir -p /data/web_static/shared/
+sudo mkdir -p /data/web_static/releases/test/
+sudo mkdir -p /data/web_static/shared/
 
 # Create a fake HTML file for testing
-echo "<html>
+sudo echo "<html>
 <head>
 </head>
 <body>
@@ -30,11 +30,11 @@ echo "<html>
 </html>" > /data/web_static/releases/test/index.html
 
 # Create or recreate the symbolic link
-rm -rf /data/web_static/current
-ln -s /data/web_static/releases/test/ /data/web_static/current
+sudo rm -rf /data/web_static/current
+sudo ln -s /data/web_static/releases/test/ /data/web_static/current
 
 # Set ownership of /data/ folder recursively to ubuntu user and group
-chown -hR ubuntu:ubuntu /data/
+sudo chown -hR ubuntu:ubuntu /data/
 sudo sed -i '/server_name _;/a \\n\tlocation /hbnb_static/{\n\t\talias /data/web_static/current/;\n\t}\n' /etc/nginx/sites-enabled/default
 
 sudo nginx -t
