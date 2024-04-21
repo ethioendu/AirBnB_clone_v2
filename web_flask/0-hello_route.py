@@ -14,8 +14,8 @@ represent your web application:
 '''
 
 
-@app.route("/")
-def hello_HBNB():
+@app.route("/", strict_slashes=False)
+def hello_hbnb():
     '''
     Logic to handle the request and generate a response
     that displays 'Hello HBNB!'
@@ -25,4 +25,4 @@ def hello_HBNB():
 
 if __name__ == "__main__":
     '''to run the Flask development server.'''
-    Flask.run(app)
+    app.run(host="0.0.0.0", port=5000)
