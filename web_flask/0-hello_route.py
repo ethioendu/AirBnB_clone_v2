@@ -15,7 +15,7 @@ represent your web application:
 
 
 @app.route("/")
-def hello_hbnb():
+def hello_HBNB():
     '''
     Logic to handle the request and generate a response
     that displays 'Hello HBNB!'
